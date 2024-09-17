@@ -48,6 +48,24 @@ npm run dev
 
 The environment variables needed to connect to Shopify have already been included in the .env file, so you're all set to begin debugging and improving the project right away!
 
-##### Good Luck!
+## Project Designs
+URL: https://www.figma.com/design/TkWkSt0pv0zW2wCvNgcvQq/Velocity---Tech-Test?node-id=0-1&m=dev&t=h5BxnTuRw1MdlGcn-1
+Password: v3l0c1ty
+
+Note – you may be required to log in to access editing tools to find out css properties.
+
+## Submission
+### When you're done, submit:
+- A GitHub repository with your code.
+- A README file with instructions on how to set up and run your project locally.
+- (Optional) A live demo hosted on Hydrogen, Vercel, Netlify, or another platform.
+
+### What We're Looking For
+- Functionality: Does your solution meet the requirements?
+- Code Quality: Is your code clean, readable, and well-organized?
+- User Experience: Is the interface intuitive and easy to use?
+- State Management: Is the cart state managed effectively?
+
+### Good Luck!
 
 If you run into any issues or have any questions, feel free to reach out to a.pearson@digital-velocity.co.uk
