@@ -1,13 +1,4 @@
-<div style="text-align: center;">
-
-# Digital Velocity - Tech Test
-
-</div>
-<div style="width:200px; margin: auto;">
-
-![Alt text](https://www.digital-velocity.co.uk/static/logo-no-text-633f9951a41d341e2633ed2636d42039.png "Digital Velocity")
-
-</div>
+<img src="./velocity-tech-test.png" alt="drawing" width="100%"/>
 
 ## Welcome, Developer!
 
