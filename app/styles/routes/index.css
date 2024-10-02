@@ -1,20 +1,27 @@
 .page__title {
-    display: block;
-    text-align: center;
-    padding: 2rem 1rem;
+  display: block;
+  text-align: center;
+  padding: 2rem 1rem;
 }
 
 .page__title h1 {
-    font-size: 3rem;
-    font-weight: 500;
-    line-height: 1.5;
-    margin: 0;
+  font-size: 3rem;
+  font-weight: 500;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.product__list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 2.4rem;
+  padding: 3.2rem 6.4rem;
 }
 
 @media only screen and (min-width: 1024px) {
-    .page__title {
-        max-width: 1500px;
-        margin: 0 auto;
-        padding: 3.2rem 6.4rem;
-    }
+  .page__title {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 3.2rem 6.4rem;
+  }
 }
