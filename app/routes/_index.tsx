@@ -1,6 +1,7 @@
 import type { LinksFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import CartDrawer from "~/components/cartDrawer/CartDrawer";
 import Header from "~/components/header/Header";
 import Footer from "~/components/footer/Footer";
 import ProductCard from "~/components/productCard/ProductCard";
@@ -20,6 +21,9 @@ import {
 
 // Utils
 import { commitSession, getSession } from "~/utils/sessionStorage";
+
+// Context and hooks
+import { useCart } from "~/context/CartContext";
 
 // Styles
 import indexStyles from "~/styles/routes/index.css?url";
@@ -80,8 +84,8 @@ export const loader = async ({ request }: { request: Request }) => {
       getCart(client, cartId),
     ]);
 
-    // update session with new cartId if a new cart was created
     const headers = new Headers();
+    // update session with new cartId if a new cart was created
     if (cartResult.isNew) {
       session.set("cartId", cartResult.cart.id);
       headers.append("Set-Cookie", await commitSession(session));
@@ -108,7 +112,8 @@ export const links: LinksFunction = () => {
 };
 
 export default function Index() {
-  const { products } = useLoaderData<typeof loader>();
+  const { products, cart } = useLoaderData<typeof loader>();
+  const { showCart } = useCart();
 
   return (
     <>
@@ -124,6 +129,7 @@ export default function Index() {
         </div>
       </main>
       <Footer />
+      {showCart && <CartDrawer cart={cart} />}
     </>
   );
 }

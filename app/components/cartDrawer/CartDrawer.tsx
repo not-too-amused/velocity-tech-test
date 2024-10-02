@@ -1,5 +1,10 @@
 import CartDrawerItem from "../cartDrawerItem/CartDrawerItem";
+
+// Context and hooks
 import { useCart } from "~/context/CartContext";
+
+//Types
+import { CartQueryQuery } from "types/storefront.generated";
 
 // Styles
 import "./CartDrawer.css";
@@ -22,7 +27,8 @@ const cartItems = [
   },
 ];
 
-const CartDrawer = () => {
+const CartDrawer = ({ cart }: CartQueryQuery) => {
+  console.log("🚀 ~ CartDrawer ~ cart:", cart);
   const { setShowCart } = useCart();
 
   return (
