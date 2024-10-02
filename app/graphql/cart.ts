@@ -33,11 +33,6 @@ fragment CartFields on Cart {
             }
         }
     }
-    buyerIdentity {
-        email
-        phone
-        countryCode
-    }
 }
 `;
 
