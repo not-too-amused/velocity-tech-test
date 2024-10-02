@@ -8,64 +8,122 @@ import { createStorefrontApiClient } from "@shopify/storefront-api-client";
 import { typedjson } from "remix-typedjson";
 
 // GraphQL
-import { getAllProducts } from '~/graphql/products'
-import { GetAllProductsQuery, ProductFieldsFragment } from "types/storefront.generated";
+import { getAllProducts } from "~/graphql/products";
+import { cartCreate, cartQuery } from "~/graphql/cart";
+import {
+  CartCreateMutation,
+  CartFieldsFragment,
+  CartQueryQuery,
+  GetAllProductsQuery,
+  ProductFieldsFragment,
+} from "types/storefront.generated";
 
-// Types
+// Utils
+import { commitSession, getSession } from "~/utils/sessionStorage";
 
 // Styles
-import indexStyles from "~/styles/routes/index.css?url"
+import indexStyles from "~/styles/routes/index.css?url";
 
+// Types
 interface LoaderData {
-    products: ProductFieldsFragment[]
+  products: ProductFieldsFragment[];
+  cart: CartFieldsFragment | null;
 }
 
-export const loader = async () => {
-    const client = createStorefrontApiClient({
-        storeDomain: `${process.env.PUBLIC_STORE_DOMAIN}`,
-        apiVersion: '2024-10',
-        publicAccessToken: `${process.env.PUBLIC_STOREFRONT_API_TOKEN}`,
+async function getCart(
+  client: ReturnType<typeof createStorefrontApiClient>,
+  cartId: string | null
+) {
+  // if there is a cartId stored in the session, attempt to retreive the cart and return it
+  if (cartId) {
+    const { data: cartData, errors: cartErrors } =
+      await client.request<CartQueryQuery>(cartQuery, {
+        variables: { id: cartId },
+      });
+    if (cartData?.cart && !cartErrors) {
+      return { cart: cartData.cart as CartFieldsFragment, isNew: false };
+    }
+  }
+
+  // if !cartId, create a new cart and return it
+  const { data: createCartData, errors: createCartErrors } =
+    await client.request<CartCreateMutation>(cartCreate, {
+      variables: { input: { lines: [] } },
     });
+  if (createCartData?.cartCreate?.cart && !createCartErrors) {
+    return {
+      cart: createCartData.cartCreate.cart as CartFieldsFragment,
+      isNew: true,
+    };
+  }
 
-    const { data, errors } = await client.request<GetAllProductsQuery>(getAllProducts);
-    if (data && !errors) {
+  // if a cart cannot be returned, throw an error
+  throw new Error("Failed to provide cart");
+}
 
-        return typedjson<LoaderData>({
-            products: data.products.edges.map(({ node }) => node as ProductFieldsFragment)
-        });
+export const loader = async ({ request }: { request: Request }) => {
+  const client = createStorefrontApiClient({
+    storeDomain: `${process.env.PUBLIC_STORE_DOMAIN}`,
+    apiVersion: "2024-10",
+    publicAccessToken: `${process.env.PUBLIC_STOREFRONT_API_TOKEN}`,
+  });
+
+  // Get cartId from session
+  const session = await getSession(request.headers.get("Cookie"));
+  const cartId = session.get("cartId");
+
+  try {
+    const [productsResult, cartResult] = await Promise.all([
+      // get product listings
+      client.request<GetAllProductsQuery>(getAllProducts),
+      // get a new, or existing cart
+      getCart(client, cartId),
+    ]);
+
+    // update session with new cartId if a new cart was created
+    const headers = new Headers();
+    if (cartResult.isNew) {
+      session.set("cartId", cartResult.cart.id);
+      headers.append("Set-Cookie", await commitSession(session));
     }
 
-    return json<LoaderData>({
-        products: [],
-    });
-}
-
-export const links: LinksFunction = () => {
-    return [
-        { rel: "stylesheet", href: indexStyles }
-    ];
+    return typedjson<LoaderData>(
+      {
+        products:
+          productsResult.data?.products.edges.map(
+            ({ node }) => node as ProductFieldsFragment
+          ) ?? [],
+        cart: cartResult.cart,
+      },
+      { headers }
+    );
+  } catch (error) {
+    console.error("Error in loader:", error);
+    return json<LoaderData>({ products: [], cart: null }, { status: 500 });
+  }
 };
 
+export const links: LinksFunction = () => {
+  return [{ rel: "stylesheet", href: indexStyles }];
+};
 
 export default function Index() {
-    const { products } = useLoaderData<typeof loader>();
+  const { products } = useLoaderData<typeof loader>();
 
-    return (
-        <>
-            <Header />
-            <main>
-                <div className="page__title">
-                    <h1>This is a page title</h1>
-                </div>
-                <div className="product__list">
-                    {products?.map((product: ProductFieldsFragment) => {
-                        return (
-                            <ProductCard key={product.id} product={product} />
-                        )
-                    })}
-                </div>
-            </main>
-            <Footer />
-        </>
-    );
+  return (
+    <>
+      <Header />
+      <main>
+        <div className="page__title">
+          <h1>This is a page title</h1>
+        </div>
+        <div className="product__list">
+          {products?.map((product: ProductFieldsFragment) => {
+            return <ProductCard key={product.id} product={product} />;
+          })}
+        </div>
+      </main>
+      <Footer />
+    </>
+  );
 }
