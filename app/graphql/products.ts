@@ -1,4 +1,4 @@
-const PRODUCT_FIEDS = `#graphql
+const PRODUCT_FIELDS = `#graphql
 fragment ProductFields on Product {
     id
     title
@@ -49,5 +49,5 @@ export const getAllProducts = `#graphql
             }
         }
     }
-    ${PRODUCT_FIEDS}
+    ${PRODUCT_FIELDS}
 `;
