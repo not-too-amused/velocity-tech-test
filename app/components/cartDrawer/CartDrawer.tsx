@@ -9,9 +9,15 @@ import { formatPrice } from "~/utils/formatPrice";
 
 // Styles
 import "./CartDrawer.css";
+import { useRef } from "react";
+import useClickOutside from "~/hooks/useClickOutside";
 
 const CartDrawer = () => {
   const { setShowCart, localCart, isUpdating, cartFetcher } = useCart();
+  const drawerRef = useRef<HTMLDivElement>(null);
+  useClickOutside(drawerRef, () => {
+    setShowCart(false);
+  });
 
   // disables scroll on body on component mount
   useDisableScroll();
@@ -57,7 +63,7 @@ const CartDrawer = () => {
           />
         </svg>
       </button>
-      <div className="cart-drawer">
+      <div className="cart-drawer" ref={drawerRef}>
         <div className="cart-drawer__flex-end-justified">
           <h2 className="cart-drawer__title">Your basket</h2>
           <button
