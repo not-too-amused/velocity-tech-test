@@ -2,6 +2,7 @@ import "./ProductCard.css";
 
 import { ProductFieldsFragment } from "types/storefront.generated";
 import QuantitySelector from "../quantitySelector/QuantitySelector";
+import { formatPrice } from "~/utils/formatPrice";
 
 const ProductCard = ({ product }: { product: ProductFieldsFragment }) => {
   const initialVariant =
@@ -66,7 +67,7 @@ const ProductCard = ({ product }: { product: ProductFieldsFragment }) => {
       <div className="product__card-si">
         <QuantitySelector variantId={initialVariant} />
         <div className="product__card-si-price">
-          {product.variants.edges[0]?.node.price.amount}
+          {formatPrice(product.variants.edges[0]?.node.price.amount)}
         </div>
       </div>
     </div>

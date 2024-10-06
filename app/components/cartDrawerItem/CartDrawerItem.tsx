@@ -3,6 +3,7 @@ import QuantitySelector from "../quantitySelector/QuantitySelector";
 import { CartLineFieldsFragment } from "types/storefront.generated";
 import { useCart } from "~/context/CartContext";
 import { useFetcher } from "@remix-run/react";
+import { formatPrice } from "~/utils/formatPrice";
 
 const CartDrawerItem = ({
   id,
@@ -68,7 +69,10 @@ const CartDrawerItem = ({
       </div>
       <div className="cart-item__footer">
         <span className="cart-item__price">
-          £{Number(merchandise.price.amount).toFixed(2)}
+          {formatPrice(
+            merchandise.price.amount,
+            merchandise.price.currencyCode
+          )}
         </span>
         <QuantitySelector variantId={merchandise.id} />
       </div>
