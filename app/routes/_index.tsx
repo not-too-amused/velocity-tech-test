@@ -7,6 +7,7 @@ import Footer from "~/components/footer/Footer";
 import ProductCard from "~/components/productCard/ProductCard";
 import { createStorefrontApiClient } from "@shopify/storefront-api-client";
 import { typedjson } from "remix-typedjson";
+import { useEffect } from "react";
 
 // GraphQL
 import { getAllProducts } from "~/graphql/products";
@@ -42,7 +43,7 @@ async function getCart(
   if (cartId) {
     const { data: cartData, errors: cartErrors } =
       await client.request<CartQueryQuery>(cartQuery, {
-        variables: { id: cartId },
+        variables: { cartId },
       });
     if (cartData?.cart && !cartErrors) {
       return { cart: cartData.cart as CartFieldsFragment, isNew: false };
@@ -113,7 +114,11 @@ export const links: LinksFunction = () => {
 
 export default function Index() {
   const { products, cart } = useLoaderData<typeof loader>();
-  const { showCart } = useCart();
+  const { showCart, setLocalCart } = useCart();
+
+  useEffect(() => {
+    if (cart) setLocalCart(cart);
+  }, [cart, setLocalCart]);
 
   return (
     <>
@@ -129,7 +134,7 @@ export default function Index() {
         </div>
       </main>
       <Footer />
-      {showCart && <CartDrawer cart={cart} />}
+      {showCart && <CartDrawer />}
     </>
   );
 }
