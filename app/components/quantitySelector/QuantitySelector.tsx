@@ -1,14 +1,12 @@
 import { useMemo } from "react";
 import { useFetcher } from "@remix-run/react";
-import { CartFieldsFragment } from "types/storefront.generated";
 import { useCart } from "~/context/CartContext";
+
+// Types
+import { FetcherData } from "types/types";
 
 // Styles
 import "./QuantitySelector.css";
-
-type FetcherData = {
-  cart: CartFieldsFragment;
-};
 
 const QuantitySelector = ({ variantId }: { variantId: string }) => {
   const fetcher = useFetcher<FetcherData>();
