@@ -1,8 +1,24 @@
 import { useCart } from "~/context/CartContext";
 import "./Header.css";
+import { useEffect, useRef } from "react";
 
 const Header = () => {
-  const { setShowCart } = useCart();
+  const {
+    setShowCart,
+    localCart: { totalQuantity },
+  } = useCart();
+  const cartIconRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    // Update CSS variable with the cart quantity
+    if (cartIconRef.current) {
+      cartIconRef.current.style.setProperty(
+        "--cart-quantity",
+        totalQuantity > 0 ? `"${totalQuantity}"` : null
+      );
+    }
+  }, [totalQuantity]);
+
   const handleShowCartDrawer = () => {
     setShowCart(true);
   };
@@ -42,6 +58,7 @@ const Header = () => {
           <span>Sign in</span>
         </button>
         <button
+          ref={cartIconRef}
           className="header__icon header__icon--cart"
           type="button"
           onClick={handleShowCartDrawer}
