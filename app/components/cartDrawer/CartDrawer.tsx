@@ -5,9 +5,11 @@ import { useCart } from "~/context/CartContext";
 
 // Styles
 import "./CartDrawer.css";
+import useDisableScroll from "~/hooks/useDisableScroll";
 
 const CartDrawer = () => {
   const { setShowCart, localCart } = useCart();
+  useDisableScroll();
 
   return (
     <div className="cart-drawer__overlay">
