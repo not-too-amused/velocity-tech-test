@@ -11,10 +11,13 @@ import { formatPrice } from "~/utils/formatPrice";
 import "./CartDrawer.css";
 import { useRef } from "react";
 import useClickOutside from "~/hooks/useClickOutside";
+import useFocusTrap from "~/hooks/useFocusTrap";
 
 const CartDrawer = () => {
   const { setShowCart, localCart, isUpdating, cartFetcher } = useCart();
   const drawerRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(overlayRef);
   useClickOutside(drawerRef, () => {
     setShowCart(false);
   });
@@ -43,7 +46,7 @@ const CartDrawer = () => {
   };
 
   return (
-    <div className="cart-drawer__overlay">
+    <div className="cart-drawer__overlay" ref={overlayRef}>
       <button
         className="cart-drawer__btn-close"
         onClick={() => setShowCart(false)}
