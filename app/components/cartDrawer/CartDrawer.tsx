@@ -2,14 +2,23 @@ import CartDrawerItem from "../cartDrawerItem/CartDrawerItem";
 
 // Context and hooks
 import { useCart } from "~/context/CartContext";
+import useDisableScroll from "~/hooks/useDisableScroll";
+
+// Utils
+import { formatPrice } from "~/utils/formatPrice";
 
 // Styles
 import "./CartDrawer.css";
-import useDisableScroll from "~/hooks/useDisableScroll";
 
 const CartDrawer = () => {
   const { setShowCart, localCart } = useCart();
   useDisableScroll();
+
+  const totalCartValue = localCart.lines.edges.reduce((total, edge) => {
+    const { quantity } = edge.node;
+    const price = edge.node.merchandise.price.amount;
+    return total + quantity * price;
+  }, 0);
 
   return (
     <div className="cart-drawer__overlay">
@@ -47,7 +56,9 @@ const CartDrawer = () => {
           <span className="cart-drawer__total-items">
             {localCart.totalQuantity} item{localCart.totalQuantity !== 1 && "s"}
           </span>
-          <span className="cart-drawer__total-value">0.00</span>
+          <span className="cart-drawer__total-value">
+            {formatPrice(totalCartValue)}
+          </span>
         </div>
         <button className="cart-drawer__btn-points">
           Earn 20 points with this order

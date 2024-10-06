@@ -64,10 +64,6 @@
   font-weight: 500;
 }
 
-.cart-drawer__total-value::before {
-  content: "£";
-}
-
 .cart-drawer__btn-points,
 .cart-drawer__btn-checkout {
   width: 100%;
