@@ -1,39 +1,47 @@
+const CART_LINE_FIELDS = `#graphql
+fragment CartLineFields on CartLine {
+  id
+  quantity
+  merchandise {
+    ... on ProductVariant {
+      id
+      title
+      availableForSale
+      product {
+        id
+        title
+        featuredImage {
+          url
+          altText
+        }
+      }
+      price {
+        amount
+        currencyCode
+      }
+    }
+  }
+  attributes {
+    key
+    value
+  }
+}
+`;
+
 const CART_FIELDS = `#graphql
 fragment CartFields on Cart {
-    id
-    totalQuantity
-    lines(first: 100) {
-        edges {
-            node {
-                id
-                quantity
-                merchandise {
-                    ... on ProductVariant {
-                        id
-                        title
-                        product {
-                            id
-                            title
-                            featuredImage {
-                                url
-                                altText
-                            }
-                        }
-                        price {
-                            amount
-                            currencyCode
-                        }
-                        availableForSale
-                    }
-                }
-                attributes {
-                    key
-                    value
-                }
-            }
-        }
+  id
+  totalQuantity
+  lines(first: 100) {
+    edges {
+      node {
+        ...CartLineFields
+      }
     }
+  }
 }
+
+${CART_LINE_FIELDS}
 `;
 
 export const cartCreate = `#graphql
