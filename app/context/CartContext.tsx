@@ -1,3 +1,4 @@
+import { useFetcher } from "@remix-run/react";
 import {
   createContext,
   ReactNode,
@@ -5,8 +6,10 @@ import {
   useState,
   Dispatch,
   SetStateAction,
+  useEffect,
 } from "react";
 import { CartFieldsFragment } from "types/storefront.generated";
+import { FetcherData } from "types/types";
 
 interface CartContextType {
   showCart: boolean;
@@ -21,7 +24,6 @@ const initialCart = {
   lines: { edges: [] },
 };
 
-// Create a context with default values
 export const CartContext = createContext<CartContextType>({
   showCart: false,
   setShowCart: () => {},
@@ -29,7 +31,6 @@ export const CartContext = createContext<CartContextType>({
   setLocalCart: () => {},
 });
 
-// Create a custom hook for easier access to the context
 export const useCart = () => useContext(CartContext);
 
 interface CartProviderProps {
@@ -39,6 +40,13 @@ interface CartProviderProps {
 export function CartProvider({ children }: CartProviderProps) {
   const [showCart, setShowCart] = useState<boolean>(false);
   const [localCart, setLocalCart] = useState<CartFieldsFragment>(initialCart);
+  const fetcher = useFetcher<FetcherData>();
+
+  useEffect(() => {
+    if (fetcher.data && fetcher.data.cart) {
+      setLocalCart(fetcher.data.cart);
+    }
+  }, [fetcher.data]);
 
   return (
     <CartContext.Provider
