@@ -2,7 +2,6 @@ import "./CartDrawerItem.css";
 import QuantitySelector from "../quantitySelector/QuantitySelector";
 import { CartLineFieldsFragment } from "types/storefront.generated";
 import { useCart } from "~/context/CartContext";
-import { useFetcher } from "@remix-run/react";
 import { formatPrice } from "~/utils/formatPrice";
 
 const CartDrawerItem = ({
@@ -10,12 +9,10 @@ const CartDrawerItem = ({
   // quantity,
   merchandise,
 }: CartLineFieldsFragment) => {
-  const { localCart } = useCart();
-  const fetcher = useFetcher();
-  const isUpdating = fetcher.state !== "idle";
+  const { localCart, isUpdating, cartFetcher } = useCart();
 
   const handleRemoveItems = () => {
-    fetcher.submit(
+    cartFetcher.submit(
       {
         cartId: localCart.id,
         lineIds: JSON.stringify([id]),

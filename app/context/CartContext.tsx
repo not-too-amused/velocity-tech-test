@@ -9,13 +9,18 @@ import {
   useEffect,
 } from "react";
 import { CartFieldsFragment } from "types/storefront.generated";
-import { FetcherData } from "types/types";
+
+interface FetcherData {
+  cart: CartFieldsFragment;
+}
 
 interface CartContextType {
   showCart: boolean;
   setShowCart: Dispatch<SetStateAction<boolean>>;
   localCart: CartFieldsFragment;
   setLocalCart: Dispatch<SetStateAction<CartFieldsFragment>>;
+  isUpdating: boolean;
+  cartFetcher: ReturnType<typeof useFetcher<FetcherData>>;
 }
 
 const initialCart = {
@@ -29,6 +34,8 @@ export const CartContext = createContext<CartContextType>({
   setShowCart: () => {},
   localCart: initialCart,
   setLocalCart: () => {},
+  isUpdating: false,
+  cartFetcher: {} as ReturnType<typeof useFetcher<FetcherData>>, // This is a placeholder and will be overwritten by the actual fetcher
 });
 
 export const useCart = () => useContext(CartContext);
@@ -40,17 +47,25 @@ interface CartProviderProps {
 export function CartProvider({ children }: CartProviderProps) {
   const [showCart, setShowCart] = useState<boolean>(false);
   const [localCart, setLocalCart] = useState<CartFieldsFragment>(initialCart);
-  const fetcher = useFetcher<FetcherData>();
+  const cartFetcher = useFetcher<FetcherData>();
+  const isUpdating = cartFetcher.state !== "idle";
 
   useEffect(() => {
-    if (fetcher.data && fetcher.data.cart) {
-      setLocalCart(fetcher.data.cart);
+    if (cartFetcher.data && cartFetcher.data.cart) {
+      setLocalCart(cartFetcher.data.cart);
     }
-  }, [fetcher.data]);
+  }, [cartFetcher.data]);
 
   return (
     <CartContext.Provider
-      value={{ showCart, setShowCart, localCart, setLocalCart }}
+      value={{
+        showCart,
+        setShowCart,
+        localCart,
+        setLocalCart,
+        isUpdating,
+        cartFetcher,
+      }}
     >
       {children}
     </CartContext.Provider>

@@ -1,24 +1,18 @@
 import { useMemo } from "react";
-import { useFetcher } from "@remix-run/react";
 import { useCart } from "~/context/CartContext";
-
-// Types
-import { FetcherData } from "types/types";
 
 // Styles
 import "./QuantitySelector.css";
 
 const QuantitySelector = ({ variantId }: { variantId: string }) => {
-  const fetcher = useFetcher<FetcherData>();
-  const { localCart } = useCart();
-  const isUpdating = fetcher.state !== "idle";
+  const { localCart, isUpdating, cartFetcher } = useCart();
   const initialQuantity =
     localCart.lines.edges.find((edge) => edge.node.merchandise.id === variantId)
       ?.node.quantity || 0;
 
   const handleUpdateQuantity = (newQuantity: number) => {
     if (newQuantity >= 0) {
-      fetcher.submit(
+      cartFetcher.submit(
         { variantId, quantity: newQuantity.toString(), cartId: localCart.id },
         { method: "post", action: "/api/updateCart" }
       );
@@ -26,14 +20,14 @@ const QuantitySelector = ({ variantId }: { variantId: string }) => {
   };
 
   const quantity = useMemo(() => {
-    if (fetcher.data && fetcher.data.cart) {
-      const cartLine = fetcher.data.cart.lines.edges.find(
+    if (cartFetcher.data && cartFetcher.data.cart) {
+      const cartLine = cartFetcher.data.cart.lines.edges.find(
         (edge) => edge.node.merchandise.id === variantId
       );
       return cartLine ? cartLine.node.quantity : initialQuantity;
     }
     return initialQuantity;
-  }, [fetcher.data, variantId, initialQuantity]);
+  }, [cartFetcher.data, variantId, initialQuantity]);
 
   return (
     <div className="quantity-selector">

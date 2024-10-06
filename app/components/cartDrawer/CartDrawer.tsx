@@ -11,7 +11,9 @@ import { formatPrice } from "~/utils/formatPrice";
 import "./CartDrawer.css";
 
 const CartDrawer = () => {
-  const { setShowCart, localCart } = useCart();
+  const { setShowCart, localCart, isUpdating, cartFetcher } = useCart();
+
+  // disables scroll on body on component mount
   useDisableScroll();
 
   const totalCartValue = localCart.lines.edges.reduce((total, edge) => {
@@ -19,6 +21,20 @@ const CartDrawer = () => {
     const price = edge.node.merchandise.price.amount;
     return total + quantity * price;
   }, 0);
+
+  const handleClearAll = () => {
+    if (!localCart) return;
+
+    const lineIds = localCart.lines.edges.map((edge) => edge.node.id);
+
+    cartFetcher.submit(
+      {
+        cartId: localCart.id,
+        lineIds: JSON.stringify(lineIds),
+      },
+      { method: "post", action: "/api/removeFromCart" }
+    );
+  };
 
   return (
     <div className="cart-drawer__overlay">
@@ -44,7 +60,13 @@ const CartDrawer = () => {
       <div className="cart-drawer">
         <div className="cart-drawer__flex-end-justified">
           <h2 className="cart-drawer__title">Your basket</h2>
-          <button className="cart-drawer__btn-clear">Clear all</button>
+          <button
+            className="cart-drawer__btn-clear"
+            onClick={handleClearAll}
+            disabled={isUpdating}
+          >
+            Clear all
+          </button>
         </div>
         <hr />
         <div className="cart-drawer__items">
