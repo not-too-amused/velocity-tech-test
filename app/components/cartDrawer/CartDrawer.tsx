@@ -6,26 +6,8 @@ import { useCart } from "~/context/CartContext";
 // Styles
 import "./CartDrawer.css";
 
-// mock cart items
-const cartItems = [
-  {
-    id: 1,
-    name: "Product name",
-    variant: "Product flavour",
-    price: 10.0,
-    quantity: 2,
-  },
-  {
-    id: 2,
-    name: "Product name",
-    variant: "Product flavour",
-    price: 14.0,
-    quantity: 1,
-  },
-];
-
 const CartDrawer = () => {
-  const { setShowCart } = useCart();
+  const { setShowCart, localCart } = useCart();
 
   return (
     <div className="cart-drawer__overlay">
@@ -55,13 +37,13 @@ const CartDrawer = () => {
         </div>
         <hr />
         <div className="cart-drawer__items">
-          {cartItems.map((item) => (
-            <CartDrawerItem key={item.id} {...item} />
+          {localCart.lines.edges.map((edge, i) => (
+            <CartDrawerItem key={i} {...edge.node} />
           ))}
         </div>
         <div className="cart-drawer__flex-end-justified">
           <span className="cart-drawer__total-items">
-            {cartItems.length} item{cartItems.length !== 1 && "s"}
+            {localCart.totalQuantity} item{localCart.totalQuantity !== 1 && "s"}
           </span>
           <span className="cart-drawer__total-value">0.00</span>
         </div>
