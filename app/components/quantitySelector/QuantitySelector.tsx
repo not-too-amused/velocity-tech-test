@@ -1,17 +1,24 @@
-import { useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useCart } from "~/context/CartContext";
 
 // Styles
 import "./QuantitySelector.css";
 
 const QuantitySelector = ({ variantId }: { variantId: string }) => {
-  const { localCart, isUpdating, cartFetcher } = useCart();
+  const { localCart, cartFetcher } = useCart();
+  const [isInstanceUpdating, setIsInstanceUpdating] = useState<boolean>(false);
+  const [lastUpdatedQuantity, setLastUpdatedQuantity] = useState<number | null>(
+    null
+  );
+
   const initialQuantity =
     localCart.lines.edges.find((edge) => edge.node.merchandise.id === variantId)
       ?.node.quantity || 0;
 
   const handleUpdateQuantity = (newQuantity: number) => {
     if (newQuantity >= 0) {
+      setIsInstanceUpdating(true);
+      setLastUpdatedQuantity(newQuantity);
       cartFetcher.submit(
         { variantId, quantity: newQuantity.toString(), cartId: localCart.id },
         { method: "post", action: "/api/updateCart" }
@@ -29,13 +36,25 @@ const QuantitySelector = ({ variantId }: { variantId: string }) => {
     return initialQuantity;
   }, [cartFetcher.data, variantId, initialQuantity]);
 
+  useEffect(() => {
+    // manage local load state by observing when quantity has been updated
+    if (
+      isInstanceUpdating &&
+      lastUpdatedQuantity !== null &&
+      quantity === lastUpdatedQuantity
+    ) {
+      setIsInstanceUpdating(false);
+      setLastUpdatedQuantity(null);
+    }
+  }, [quantity, isInstanceUpdating, lastUpdatedQuantity]);
+
   return (
     <div className="quantity-selector">
       <button
         type="button"
         name="Minus"
         onClick={() => handleUpdateQuantity(quantity - 1)}
-        disabled={isUpdating}
+        disabled={isInstanceUpdating}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -53,7 +72,7 @@ const QuantitySelector = ({ variantId }: { variantId: string }) => {
         </svg>
       </button>
       <span>
-        {isUpdating ? (
+        {isInstanceUpdating ? (
           <span className="quantity-selector__skeleton" />
         ) : (
           quantity
@@ -63,7 +82,7 @@ const QuantitySelector = ({ variantId }: { variantId: string }) => {
         type="button"
         name="Plus"
         onClick={() => handleUpdateQuantity(quantity + 1)}
-        disabled={isUpdating}
+        disabled={isInstanceUpdating}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
